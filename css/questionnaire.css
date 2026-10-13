@@ -1,0 +1,2050 @@
+/* ============================================================
+   CLUTTER & CO.
+   QUESTIONNAIRE PAGE
+   ============================================================ */
+
+
+/* ============================================================
+   ROOT
+   ============================================================ */
+
+.questionnaire-page {
+    background:
+        var(--warm-white);
+
+    color:
+        #2F2F2F;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.questionnaire-hero {
+    min-height:
+        100vh;
+
+    padding-top:
+        100px;
+
+    background:
+        var(--warm-white);
+}
+
+
+.questionnaire-hero-inner {
+    min-height:
+        calc(
+            100vh -
+            100px
+        );
+
+    display:
+        grid;
+
+    grid-template-columns:
+        0.92fr
+        1.08fr;
+}
+
+
+.questionnaire-hero-copy {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    padding:
+        110px
+        70px
+        70px
+        max(
+            60px,
+            calc(
+                (
+                    100vw -
+                    1380px
+                )
+                /
+                2
+            )
+        );
+}
+
+
+.questionnaire-kicker {
+    margin-bottom:
+        30px;
+
+    color:
+        #7E8F72;
+
+    font-size:
+        0.67rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.18em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-hero h1 {
+    max-width:
+        720px;
+
+    font-size:
+        clamp(
+            4.5rem,
+            7vw,
+            8rem
+        );
+
+    line-height:
+        0.94;
+
+    letter-spacing:
+        -0.055em;
+}
+
+
+.questionnaire-hero h1 em {
+    display:
+        block;
+
+    color:
+        #7E8F72;
+}
+
+
+.questionnaire-lead {
+    max-width:
+        590px;
+
+    margin-top:
+        40px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.69
+        );
+
+    font-size:
+        clamp(
+            1rem,
+            1.3vw,
+            1.2rem
+        );
+
+    line-height:
+        1.8;
+}
+
+
+/* ============================================================
+   HERO NOTES
+   ============================================================ */
+
+.questionnaire-hero-notes {
+    margin-top:
+        70px;
+
+    padding-top:
+        28px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap:
+        25px;
+
+    border-top:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.16
+        );
+}
+
+
+.questionnaire-hero-notes div {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        8px;
+}
+
+
+.questionnaire-hero-notes span {
+    color:
+        #7E8F72;
+
+    font-size:
+        0.62rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.15em;
+}
+
+
+.questionnaire-hero-notes p {
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.7
+        );
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size:
+        1rem;
+
+    line-height:
+        1.35;
+}
+
+
+/* ============================================================
+   HERO VISUAL
+   ============================================================ */
+
+.questionnaire-hero-visual {
+    position:
+        relative;
+
+    min-height:
+        calc(
+            100vh -
+            100px
+        );
+
+    overflow:
+        hidden;
+}
+
+
+.questionnaire-hero-visual img {
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+
+    transform:
+        scale(
+            1.025
+        );
+
+    transition:
+        transform
+        1.2s
+        cubic-bezier(
+            0.16,
+            1,
+            0.3,
+            1
+        );
+}
+
+
+.questionnaire-hero:hover
+.questionnaire-hero-visual img {
+    transform:
+        scale(
+            1
+        );
+}
+
+
+.questionnaire-hero-overlay {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(
+                15,
+                15,
+                15,
+                0.02
+            ),
+            rgba(
+                15,
+                15,
+                15,
+                0.33
+            )
+        );
+}
+
+
+.questionnaire-image-note {
+    position:
+        absolute;
+
+    right:
+        45px;
+
+    bottom:
+        40px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        flex-end;
+
+    gap:
+        6px;
+
+    color:
+        #FFFFFF;
+
+    font-size:
+        0.63rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.18em;
+
+    text-transform:
+        uppercase;
+}
+
+
+/* ============================================================
+   FORM LAYOUT
+   ============================================================ */
+
+.questionnaire-section {
+    background:
+        #EFE9DF;
+}
+
+
+.questionnaire-layout {
+    width:
+        min(
+            calc(
+                100% -
+                80px
+            ),
+            1380px
+        );
+
+    margin-inline:
+        auto;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        0.36fr
+        0.64fr;
+
+    gap:
+        80px;
+
+    align-items:
+        start;
+
+    padding:
+        clamp(
+            100px,
+            10vw,
+            160px
+        )
+        0;
+}
+
+
+/* ============================================================
+   ASIDE
+   ============================================================ */
+
+.questionnaire-aside {
+    position:
+        relative;
+}
+
+
+.questionnaire-aside-inner {
+    position:
+        sticky;
+
+    top:
+        130px;
+}
+
+
+.questionnaire-step {
+    margin-bottom:
+        32px;
+
+    color:
+        #7E8F72;
+
+    font-size:
+        0.66rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.17em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-aside h2 {
+    max-width:
+        430px;
+
+    font-size:
+        clamp(
+            3rem,
+            4vw,
+            5rem
+        );
+
+    line-height:
+        0.98;
+}
+
+
+.questionnaire-aside h2 em {
+    color:
+        #7E8F72;
+}
+
+
+.questionnaire-aside > .questionnaire-aside-inner > p:not(.questionnaire-step) {
+    max-width:
+        420px;
+
+    margin-top:
+        35px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.66
+        );
+
+    line-height:
+        1.85;
+}
+
+
+.questionnaire-aside-rule {
+    width:
+        100%;
+
+    height:
+        1px;
+
+    margin:
+        45px
+        0;
+
+    background:
+        rgba(
+            47,
+            47,
+            47,
+            0.17
+        );
+}
+
+
+.questionnaire-aside-contact {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        12px;
+}
+
+
+.questionnaire-aside-contact > span {
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.53
+        );
+
+    font-size:
+        0.64rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.14em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-aside-contact a {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    width:
+        fit-content;
+
+    color:
+        #2F2F2F;
+
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size:
+        1.2rem;
+}
+
+
+.questionnaire-aside-contact b {
+    font-family:
+        inherit;
+
+    font-weight:
+        400;
+
+    transition:
+        transform
+        0.35s
+        ease;
+}
+
+
+.questionnaire-aside-contact a:hover b {
+    transform:
+        translate(
+            4px,
+            -4px
+        );
+}
+
+
+/* ============================================================
+   FORM WRAPPER
+   ============================================================ */
+
+.questionnaire-form-wrap {
+    background:
+        var(--warm-white);
+
+    box-shadow:
+        0
+        25px
+        70px
+        rgba(
+            55,
+            48,
+            38,
+            0.08
+        );
+}
+
+
+.questionnaire-form {
+    display:
+        block;
+}
+
+
+/* ============================================================
+   FORM SECTIONS
+   ============================================================ */
+
+.form-section {
+    padding:
+        clamp(
+            55px,
+            6vw,
+            85px
+        );
+
+    border-bottom:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.13
+        );
+}
+
+
+.form-section-heading {
+    display:
+        grid;
+
+    grid-template-columns:
+        58px
+        1fr;
+
+    gap:
+        25px;
+
+    align-items:
+        start;
+
+    margin-bottom:
+        55px;
+}
+
+
+.form-section-number {
+    padding-top:
+        8px;
+
+    color:
+        #7E8F72;
+
+    font-size:
+        0.67rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.16em;
+}
+
+
+.form-section-kicker {
+    margin-bottom:
+        15px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.52
+        );
+
+    font-size:
+        0.64rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.16em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.form-section-heading h2 {
+    max-width:
+        650px;
+
+    font-size:
+        clamp(
+            2.8rem,
+            4.5vw,
+            5rem
+        );
+
+    line-height:
+        0.98;
+}
+
+
+.form-section-heading h2 em {
+    color:
+        #7E8F72;
+}
+
+
+/* ============================================================
+   INPUT GRID
+   ============================================================ */
+
+.form-grid {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        34px
+        30px;
+}
+
+
+.form-field {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        12px;
+}
+
+
+.form-field-full {
+    grid-column:
+        1
+        /
+        -1;
+}
+
+
+.form-field label,
+.space-fieldset legend {
+    color:
+        #2F2F2F;
+
+    font-size:
+        0.68rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.1em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.form-field label > span,
+.space-fieldset legend > span {
+    color:
+        #7E8F72;
+}
+
+
+.form-field label small {
+    margin-left:
+        8px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.44
+        );
+
+    font-size:
+        0.56rem;
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        0.08em;
+
+    text-transform:
+        uppercase;
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+.questionnaire-form input:not([type="checkbox"]),
+.questionnaire-form select,
+.questionnaire-form textarea {
+    width:
+        100%;
+
+    border:
+        0;
+
+    border-bottom:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.27
+        );
+
+    border-radius:
+        0;
+
+    outline:
+        none;
+
+    background:
+        transparent;
+
+    color:
+        #2F2F2F;
+
+    font-family:
+        "Montserrat",
+        Arial,
+        sans-serif;
+
+    font-size:
+        0.95rem;
+
+    transition:
+        border-color
+        0.25s
+        ease,
+
+        background
+        0.25s
+        ease;
+}
+
+
+.questionnaire-form input:not([type="checkbox"]),
+.questionnaire-form select {
+    min-height:
+        54px;
+}
+
+
+.questionnaire-form textarea {
+    min-height:
+        180px;
+
+    padding:
+        16px
+        0;
+
+    resize:
+        vertical;
+
+    line-height:
+        1.75;
+}
+
+
+.questionnaire-form select {
+    cursor:
+        pointer;
+}
+
+
+.questionnaire-form input::placeholder,
+.questionnaire-form textarea::placeholder {
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.37
+        );
+}
+
+
+.questionnaire-form input:focus,
+.questionnaire-form select:focus,
+.questionnaire-form textarea:focus {
+    border-color:
+        #7E8F72;
+}
+
+
+.questionnaire-form input:focus-visible,
+.questionnaire-form select:focus-visible,
+.questionnaire-form textarea:focus-visible {
+    outline:
+        2px solid
+        rgba(
+            126,
+            143,
+            114,
+            0.25
+        );
+
+    outline-offset:
+        4px;
+}
+
+
+/* ============================================================
+   SPACE FIELDSET
+   ============================================================ */
+
+.space-fieldset {
+    margin:
+        0;
+
+    padding:
+        0;
+
+    border:
+        0;
+}
+
+
+.space-fieldset legend {
+    margin-bottom:
+        22px;
+}
+
+
+.space-options {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    border-top:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.14
+        );
+
+    border-left:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.14
+        );
+}
+
+
+.space-option {
+    position:
+        relative;
+
+    min-height:
+        100px;
+
+    padding:
+        22px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        30px
+        1fr
+        28px;
+
+    align-items:
+        center;
+
+    gap:
+        14px;
+
+    border-right:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.14
+        );
+
+    border-bottom:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.14
+        );
+
+    cursor:
+        pointer;
+
+    transition:
+        background
+        0.3s
+        ease,
+
+        color
+        0.3s
+        ease;
+}
+
+
+.space-option:hover {
+    background:
+        rgba(
+            126,
+            143,
+            114,
+            0.08
+        );
+}
+
+
+.space-option input {
+    position:
+        absolute;
+
+    width:
+        1px;
+
+    height:
+        1px;
+
+    opacity:
+        0;
+
+    pointer-events:
+        none;
+}
+
+
+.space-option-number {
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.44
+        );
+
+    font-size:
+        0.61rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.14em;
+}
+
+
+.space-option-copy {
+    font-family:
+        "Playfair Display",
+        Georgia,
+        serif;
+
+    font-size:
+        1.08rem;
+
+    line-height:
+        1.3;
+}
+
+
+.space-option-check {
+    width:
+        27px;
+
+    height:
+        27px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.25
+        );
+
+    border-radius:
+        50%;
+
+    color:
+        transparent;
+
+    font-size:
+        0.7rem;
+
+    transition:
+        background
+        0.25s
+        ease,
+
+        border-color
+        0.25s
+        ease,
+
+        color
+        0.25s
+        ease;
+}
+
+
+.space-option:has(input:checked) {
+    background:
+        #7E8F72;
+
+    color:
+        #FFFFFF;
+}
+
+
+.space-option:has(input:checked)
+.space-option-number {
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.65
+        );
+}
+
+
+.space-option:has(input:checked)
+.space-option-check {
+    border-color:
+        rgba(
+            255,
+            255,
+            255,
+            0.72
+        );
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.12
+        );
+
+    color:
+        #FFFFFF;
+}
+
+
+/* ============================================================
+   HELP TEXT
+   ============================================================ */
+
+.form-help {
+    max-width:
+        700px;
+
+    margin:
+        18px
+        0
+        38px;
+
+    padding-left:
+        18px;
+
+    border-left:
+        2px solid
+        #A7B399;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.56
+        );
+
+    font-size:
+        0.75rem;
+
+    line-height:
+        1.75;
+}
+
+
+/* ============================================================
+   HONEYPOT
+   ============================================================ */
+
+.honey {
+    position:
+        absolute !important;
+
+    left:
+        -9999px !important;
+
+    width:
+        1px !important;
+
+    height:
+        1px !important;
+
+    overflow:
+        hidden !important;
+}
+
+
+/* ============================================================
+   SUBMIT SECTION
+   ============================================================ */
+
+.form-submit-section {
+    padding:
+        clamp(
+            60px,
+            7vw,
+            90px
+        );
+
+    background:
+        #D8C9B5;
+}
+
+
+.form-submit-intro > span {
+    display:
+        inline-block;
+
+    margin-bottom:
+        22px;
+
+    color:
+        #5B6F49;
+
+    font-size:
+        0.65rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.16em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.form-submit-intro h2 {
+    max-width:
+        680px;
+
+    font-size:
+        clamp(
+            3rem,
+            5vw,
+            5.5rem
+        );
+
+    line-height:
+        0.97;
+}
+
+
+.form-submit-intro h2 em {
+    color:
+        #5B6F49;
+}
+
+
+.form-submit-intro p {
+    max-width:
+        610px;
+
+    margin-top:
+        28px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.68
+        );
+
+    line-height:
+        1.8;
+}
+
+
+/* ============================================================
+   CONSENT
+   ============================================================ */
+
+.questionnaire-consent {
+    margin-top:
+        50px;
+
+    padding:
+        28px
+        0;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        24px
+        1fr;
+
+    align-items:
+        start;
+
+    gap:
+        16px;
+
+    border-top:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.18
+        );
+
+    border-bottom:
+        1px solid
+        rgba(
+            47,
+            47,
+            47,
+            0.18
+        );
+
+    cursor:
+        pointer;
+}
+
+
+.questionnaire-consent input {
+    width:
+        18px;
+
+    height:
+        18px;
+
+    margin-top:
+        3px;
+
+    accent-color:
+        #5B6F49;
+}
+
+
+.questionnaire-consent > span {
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.72
+        );
+
+    font-size:
+        0.79rem;
+
+    line-height:
+        1.7;
+}
+
+
+.questionnaire-consent a {
+    color:
+        #2F2F2F;
+
+    text-decoration:
+        underline;
+
+    text-underline-offset:
+        3px;
+}
+
+
+.questionnaire-consent strong {
+    color:
+        #5B6F49;
+}
+
+
+/* ============================================================
+   SUBMIT NOTE
+   ============================================================ */
+
+.questionnaire-submit-note {
+    margin-top:
+        30px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        130px
+        1fr;
+
+    gap:
+        25px;
+}
+
+
+.questionnaire-submit-note span {
+    color:
+        #5B6F49;
+
+    font-size:
+        0.64rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.14em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-submit-note p {
+    max-width:
+        560px;
+
+    color:
+        rgba(
+            47,
+            47,
+            47,
+            0.62
+        );
+
+    font-size:
+        0.78rem;
+
+    line-height:
+        1.75;
+}
+
+
+/* ============================================================
+   SUBMIT BUTTON
+   ============================================================ */
+
+.questionnaire-submit {
+    margin-top:
+        45px;
+
+    min-height:
+        62px;
+
+    padding-inline:
+        30px;
+
+    gap:
+        18px;
+}
+
+
+.questionnaire-submit span {
+    font-size:
+        1rem;
+
+    transition:
+        transform
+        0.35s
+        ease;
+}
+
+
+.questionnaire-submit:hover span {
+    transform:
+        translate(
+            4px,
+            -4px
+        );
+}
+
+
+.questionnaire-status {
+    margin-top:
+        20px;
+
+    color:
+        #2F2F2F;
+
+    font-size:
+        0.8rem;
+
+    line-height:
+        1.6;
+}
+
+
+.questionnaire-noscript {
+    margin-top:
+        22px;
+
+    font-size:
+        0.78rem;
+}
+
+
+/* ============================================================
+   FINAL REASSURANCE
+   ============================================================ */
+
+.questionnaire-reassurance {
+    padding:
+        clamp(
+            100px,
+            11vw,
+            170px
+        )
+        0;
+
+    background:
+        #2F2F2F;
+
+    color:
+        #F8F6F1;
+}
+
+
+.questionnaire-reassurance-inner {
+    width:
+        min(
+            calc(
+                100% -
+                80px
+            ),
+            1380px
+        );
+
+    margin-inline:
+        auto;
+}
+
+
+.questionnaire-reassurance-inner > p {
+    margin-bottom:
+        30px;
+
+    color:
+        #A7B399;
+
+    font-size:
+        0.67rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.17em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-reassurance h2 {
+    max-width:
+        1100px;
+
+    font-size:
+        clamp(
+            3.5rem,
+            6vw,
+            7rem
+        );
+
+    line-height:
+        0.98;
+}
+
+
+.questionnaire-reassurance h2 em {
+    color:
+        #A7B399;
+}
+
+
+.questionnaire-reassurance-link {
+    margin-top:
+        55px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        14px;
+
+    color:
+        #F8F6F1;
+
+    font-size:
+        0.7rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.11em;
+
+    text-transform:
+        uppercase;
+}
+
+
+.questionnaire-reassurance-link span {
+    transition:
+        transform
+        0.35s
+        ease;
+}
+
+
+.questionnaire-reassurance-link:hover span {
+    transform:
+        translate(
+            4px,
+            -4px
+        );
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media
+(max-width: 1100px) {
+
+    .questionnaire-hero-inner {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .questionnaire-hero-copy {
+        padding:
+            140px
+            45px
+            85px;
+    }
+
+
+    .questionnaire-hero-visual {
+        min-height:
+            68vh;
+    }
+
+
+    .questionnaire-layout {
+        width:
+            calc(
+                100% -
+                60px
+            );
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            60px;
+    }
+
+
+    .questionnaire-aside-inner {
+        position:
+            static;
+
+        display:
+            grid;
+
+        grid-template-columns:
+            1fr
+            1fr;
+
+        gap:
+            30px
+            60px;
+    }
+
+
+    .questionnaire-aside-inner
+    .questionnaire-step {
+        grid-column:
+            1
+            /
+            -1;
+
+        margin-bottom:
+            0;
+    }
+
+
+    .questionnaire-aside h2 {
+        max-width:
+            550px;
+    }
+
+
+    .questionnaire-aside >
+    .questionnaire-aside-inner >
+    p:not(.questionnaire-step) {
+        margin-top:
+            0;
+    }
+
+
+    .questionnaire-aside-rule {
+        grid-column:
+            1
+            /
+            -1;
+
+        margin:
+            10px
+            0;
+    }
+
+
+    .questionnaire-aside-contact {
+        grid-column:
+            1
+            /
+            -1;
+    }
+
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media
+(max-width: 760px) {
+
+    .questionnaire-hero {
+        padding-top:
+            75px;
+    }
+
+
+    .questionnaire-hero-inner {
+        min-height:
+            auto;
+    }
+
+
+    .questionnaire-hero-copy {
+        padding:
+            75px
+            22px
+            65px;
+    }
+
+
+    .questionnaire-hero h1 {
+        font-size:
+            clamp(
+                3.9rem,
+                18vw,
+                5.8rem
+            );
+    }
+
+
+    .questionnaire-lead {
+        margin-top:
+            28px;
+    }
+
+
+    .questionnaire-hero-notes {
+        margin-top:
+            55px;
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            22px;
+    }
+
+
+    .questionnaire-hero-visual {
+        min-height:
+            58vh;
+    }
+
+
+    .questionnaire-image-note {
+        right:
+            22px;
+
+        bottom:
+            24px;
+    }
+
+
+    /* LAYOUT */
+
+    .questionnaire-layout {
+        width:
+            calc(
+                100% -
+                36px
+            );
+
+        padding:
+            85px
+            0;
+
+        gap:
+            45px;
+    }
+
+
+    .questionnaire-aside-inner {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .questionnaire-aside h2 {
+        font-size:
+            clamp(
+                3rem,
+                14vw,
+                4.8rem
+            );
+    }
+
+
+    .questionnaire-aside-rule,
+    .questionnaire-aside-contact,
+    .questionnaire-aside-inner
+    .questionnaire-step {
+        grid-column:
+            auto;
+    }
+
+
+    /* FORM */
+
+    .form-section,
+    .form-submit-section {
+        padding:
+            45px
+            22px;
+    }
+
+
+    .form-section-heading {
+        grid-template-columns:
+            36px
+            1fr;
+
+        gap:
+            15px;
+
+        margin-bottom:
+            42px;
+    }
+
+
+    .form-section-heading h2 {
+        font-size:
+            clamp(
+                2.7rem,
+                13vw,
+                4.4rem
+            );
+    }
+
+
+    .form-grid {
+        grid-template-columns:
+            1fr;
+
+        gap:
+            30px;
+    }
+
+
+    .space-options {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .space-option {
+        min-height:
+            86px;
+    }
+
+
+    .questionnaire-submit-note {
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+    }
+
+
+    .questionnaire-submit {
+        width:
+            100%;
+    }
+
+
+    /* FINAL */
+
+    .questionnaire-reassurance-inner {
+        width:
+            calc(
+                100% -
+                40px
+            );
+    }
+
+
+    .questionnaire-reassurance h2 {
+        font-size:
+            clamp(
+                3.2rem,
+                15vw,
+                5rem
+            );
+    }
+
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media
+(max-width: 430px) {
+
+    .questionnaire-layout {
+        width:
+            calc(
+                100% -
+                24px
+            );
+    }
+
+
+    .form-section,
+    .form-submit-section {
+        padding:
+            40px
+            18px;
+    }
+
+
+    .space-option {
+        padding:
+            18px
+            14px;
+
+        grid-template-columns:
+            24px
+            1fr
+            26px;
+
+        gap:
+            10px;
+    }
+
+
+    .space-option-copy {
+        font-size:
+            1rem;
+    }
+
+}

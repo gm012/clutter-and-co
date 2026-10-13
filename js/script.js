@@ -1,71 +1,1663 @@
 'use strict';
-const header=document.getElementById('siteHeader'),toggle=document.getElementById('menuToggle'),menu=document.getElementById('mobileMenu');
-const main=document.querySelector('main'),footer=document.querySelector('footer');
-function closeMenu(returnFocus=false){menu.classList.remove('open');menu.inert=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Open navigation menu');toggle.classList.remove('active');document.body.classList.remove('menu-open');main.inert=false;footer.inert=false;if(returnFocus)toggle.focus();}
-toggle.addEventListener('click',()=>{if(toggle.getAttribute('aria-expanded')==='true'){closeMenu(true);return;}header.classList.remove('header-hidden');menu.inert=false;menu.classList.add('open');toggle.classList.add('active');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Close navigation menu');document.body.classList.add('menu-open');main.inert=true;footer.inert=true;menu.querySelector('a').focus();});
-menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>closeMenu()));
-document.addEventListener('keydown',e=>{if(toggle.getAttribute('aria-expanded')!=='true')return;if(e.key==='Escape'){closeMenu(true);return;}if(e.key==='Tab'){const items=[toggle,...menu.querySelectorAll('a')];const idx=items.indexOf(document.activeElement);if(e.shiftKey&&idx===0){e.preventDefault();items.at(-1).focus();}else if(!e.shiftKey&&idx===items.length-1){e.preventDefault();toggle.focus();}}});
-let lastHeaderScroll=window.scrollY;
-function headerState(){
- const y=Math.max(0,window.scrollY),delta=y-lastHeaderScroll;
- header.classList.toggle('scrolled',y>35);
- header.classList.remove('header-theme-dark','header-theme-split');header.classList.add('header-theme-light');
- if(y<=header.offsetHeight||document.body.classList.contains('menu-open'))header.classList.remove('header-hidden');
- else if(Math.abs(delta)>=5)header.classList.toggle('header-hidden',delta>0);
- if(Math.abs(delta)>=5||y===0)lastHeaderScroll=y;
-}
-header.addEventListener('focusin',()=>header.classList.remove('header-hidden'));
 
-window.addEventListener('scroll',headerState,{passive:true});window.addEventListener('resize',()=>{headerState();if(innerWidth>1100)closeMenu();});headerState();
-const slider=document.getElementById('comparisonSlider');if(slider){const update=()=>{document.getElementById('comparisonBefore').style.width=slider.value+'%';document.getElementById('comparisonLine').style.left=slider.value+'%';slider.setAttribute('aria-valuetext',slider.value+' percent of the before image visible');};slider.addEventListener('input',update);update();}
-document.getElementById('currentYear').textContent=new Date().getFullYear();
-// Notice acknowledgement only: no optional tracking is installed or enabled.
-const key='clutter-cookie-notice',version=1,ttl=180*86400000,notice=document.querySelector('.cookie-notice'),dialog=document.getElementById('privacyDialog');
-let previousFocus=null;
-function remembered(){try{const v=JSON.parse(localStorage.getItem(key));return v&&v.version===version&&Date.now()-v.time<ttl;}catch{return false;}}
-function acknowledge(){try{localStorage.setItem(key,JSON.stringify({version,time:Date.now()}));}catch{}notice.hidden=true;}
-notice.hidden=remembered();
-document.querySelector('[data-ack]').addEventListener('click',acknowledge);
-document.querySelectorAll('[data-privacy]').forEach(b=>b.addEventListener('click',()=>{previousFocus=b;dialog.showModal();}));
-document.querySelector('[data-close]').addEventListener('click',()=>dialog.close());
-dialog.addEventListener('close',()=>previousFocus?.focus());
-document.querySelector('[data-forget]').addEventListener('click',()=>{try{localStorage.removeItem(key);}catch{}notice.hidden=false;document.getElementById('privacyStatus').textContent='Saved notice preference cleared. No optional trackers were active.';});
-window.addEventListener('storage',e=>{if(e.key===key)notice.hidden=remembered();});
-const form=document.getElementById('enquiryForm');
-if(form){
- const status=document.getElementById('formStatus'),submit=form.querySelector('[type="submit"]');let pending=false;
- form.addEventListener('submit',async e=>{
-  e.preventDefault();if(pending)return;
-  if(!form.querySelector('[name="spaces[]"]:checked')){status.className='error';status.textContent='Please select at least one space.';form.querySelector('[name="spaces[]"]').focus();return;}
-  pending=true;submit.disabled=true;status.className='';status.textContent='Sending your questionnaire…';
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
-  try{
-   const start=await fetch('api/enquiry.php',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
-   if(!start.ok)throw new Error('The form is temporarily unavailable. Please email farryn@clutterandco.co.za or call us. Your answers remain here.');
-   const {token}=await start.json();if(!token)throw new Error('Could not start a secure request. Please reload or email us.');
-   const data=new FormData(form);data.append('token',token);
-   const response=await fetch('api/enquiry.php',{method:'POST',body:data,credentials:'same-origin',signal:controller.signal});
-   const result=await response.json();if(!response.ok||!result.ok)throw new Error(result.message||'Unable to send. Please email us; your answers remain here.');
-   status.className='success';status.textContent='Your questionnaire has been accepted for delivery. If you do not hear back, please contact us directly.';form.reset();
-  }catch(err){status.className='error';status.textContent=err.name==='AbortError'?'The request timed out and delivery is unconfirmed. Please contact us before resending. Your answers remain here.':err instanceof SyntaxError?'The form is temporarily unavailable. Please email farryn@clutterandco.co.za. Your answers remain here.':err.message;}
-  finally{clearTimeout(timer);pending=false;submit.disabled=false;}
- });
+
+// ============================================================
+// CLUTTER & CO.
+// GLOBAL SITE SCRIPT
+// ============================================================
+
+
+
+// ============================================================
+// CORE ELEMENTS
+// ============================================================
+
+const header =
+    document.getElementById('siteHeader');
+
+const toggle =
+    document.getElementById('menuToggle');
+
+const menu =
+    document.getElementById('mobileMenu');
+
+const main =
+    document.querySelector('main');
+
+const footer =
+    document.querySelector('footer');
+
+
+
+// ============================================================
+// HEADER VISUAL STATE
+//
+// IMPORTANT:
+// Keep the header permanently in the LIGHT visual treatment.
+//
+// This means:
+// - dark / charcoal logo
+// - charcoal navigation
+// - sage hover treatment
+// - transparent background
+//
+// We deliberately DO NOT switch to header-theme-split or
+// header-theme-dark because those styles were turning the
+// Clutter logo white.
+// ============================================================
+
+function enforceHeaderTheme() {
+
+    if (!header) {
+        return;
+    }
+
+
+    header.classList.remove(
+        'header-theme-dark',
+        'header-theme-split',
+        'scrolled'
+    );
+
+
+    header.classList.add(
+        'header-theme-light'
+    );
+
 }
 
-// Accessible back-to-top control, kept above the privacy notice when visible.
-const backToTop=document.createElement('button');
-backToTop.type='button';backToTop.className='back-to-top';backToTop.setAttribute('aria-label','Back to top');backToTop.title='Back to top';backToTop.textContent='↑';backToTop.hidden=true;document.body.append(backToTop);
-function updateBackToTop(){
- backToTop.hidden=window.scrollY<400||document.body.classList.contains('menu-open');
- backToTop.style.bottom=(!notice.hidden?notice.getBoundingClientRect().height+36:24)+'px';
+
+
+// ============================================================
+// MOBILE MENU
+// ============================================================
+
+function closeMenu(returnFocus = false) {
+
+    if (
+        !menu ||
+        !toggle
+    ) {
+        return;
+    }
+
+
+    menu.classList.remove(
+        'open'
+    );
+
+
+    menu.inert =
+        true;
+
+
+    toggle.classList.remove(
+        'active'
+    );
+
+
+    toggle.setAttribute(
+        'aria-expanded',
+        'false'
+    );
+
+
+    toggle.setAttribute(
+        'aria-label',
+        'Open navigation menu'
+    );
+
+
+    document.body.classList.remove(
+        'menu-open'
+    );
+
+
+    if (main) {
+
+        main.inert =
+            false;
+
+    }
+
+
+    if (footer) {
+
+        footer.inert =
+            false;
+
+    }
+
+
+    if (returnFocus) {
+
+        toggle.focus();
+
+    }
+
 }
-backToTop.addEventListener('click',()=>{
- header.classList.remove('header-hidden');
- window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
- document.querySelector('.brand').focus({preventScroll:true});
-});
-window.addEventListener('scroll',updateBackToTop,{passive:true});window.addEventListener('resize',updateBackToTop);
-new ResizeObserver(updateBackToTop).observe(notice);
-new MutationObserver(updateBackToTop).observe(notice,{attributes:true,attributeFilter:['hidden']});
-new MutationObserver(updateBackToTop).observe(document.body,{attributes:true,attributeFilter:['class']});
+
+
+
+// ============================================================
+// MOBILE MENU OPEN
+// ============================================================
+
+if (
+    toggle &&
+    menu
+) {
+
+    toggle.addEventListener(
+        'click',
+        () => {
+
+            const isOpen =
+                toggle.getAttribute(
+                    'aria-expanded'
+                ) === 'true';
+
+
+            if (isOpen) {
+
+                closeMenu(true);
+
+                return;
+
+            }
+
+
+            if (header) {
+
+                header.classList.remove(
+                    'header-hidden'
+                );
+
+            }
+
+
+            enforceHeaderTheme();
+
+
+            menu.inert =
+                false;
+
+
+            menu.classList.add(
+                'open'
+            );
+
+
+            toggle.classList.add(
+                'active'
+            );
+
+
+            toggle.setAttribute(
+                'aria-expanded',
+                'true'
+            );
+
+
+            toggle.setAttribute(
+                'aria-label',
+                'Close navigation menu'
+            );
+
+
+            document.body.classList.add(
+                'menu-open'
+            );
+
+
+            if (main) {
+
+                main.inert =
+                    true;
+
+            }
+
+
+            if (footer) {
+
+                footer.inert =
+                    true;
+
+            }
+
+
+            const firstMenuLink =
+                menu.querySelector('a');
+
+
+            if (firstMenuLink) {
+
+                firstMenuLink.focus();
+
+            }
+
+        }
+    );
+
+
+
+    menu
+        .querySelectorAll('a')
+        .forEach(
+            link => {
+
+                link.addEventListener(
+                    'click',
+                    () => {
+
+                        closeMenu();
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+
+// ============================================================
+// MOBILE MENU KEYBOARD ACCESSIBILITY
+// ============================================================
+
+document.addEventListener(
+    'keydown',
+    event => {
+
+        if (
+            !toggle ||
+            !menu
+        ) {
+            return;
+        }
+
+
+        const menuOpen =
+            toggle.getAttribute(
+                'aria-expanded'
+            ) === 'true';
+
+
+        if (!menuOpen) {
+            return;
+        }
+
+
+
+        // ----------------------------------------------------
+        // ESCAPE
+        // ----------------------------------------------------
+
+        if (
+            event.key ===
+            'Escape'
+        ) {
+
+            closeMenu(true);
+
+            return;
+
+        }
+
+
+
+        // ----------------------------------------------------
+        // TAB LOOP
+        // ----------------------------------------------------
+
+        if (
+            event.key ===
+            'Tab'
+        ) {
+
+            const items = [
+                toggle,
+                ...menu.querySelectorAll('a')
+            ];
+
+
+            const index =
+                items.indexOf(
+                    document.activeElement
+                );
+
+
+            if (
+                event.shiftKey &&
+                index === 0
+            ) {
+
+                event.preventDefault();
+
+
+                items
+                    .at(-1)
+                    ?.focus();
+
+            }
+
+
+            else if (
+                !event.shiftKey &&
+                index ===
+                items.length - 1
+            ) {
+
+                event.preventDefault();
+
+
+                toggle.focus();
+
+            }
+
+        }
+
+    }
+);
+
+
+
+// ============================================================
+// HEADER HIDE / SHOW
+//
+// SCROLL DOWN = HIDE
+// SCROLL UP   = SHOW
+// TOP         = SHOW
+//
+// No background gets added.
+// No colour theme switching gets added.
+// ============================================================
+
+let lastHeaderScroll =
+    Math.max(
+        0,
+        window.scrollY
+    );
+
+
+const headerScrollThreshold =
+    5;
+
+
+
+function headerState() {
+
+    if (!header) {
+        return;
+    }
+
+
+    // Always keep correct Clutter header colour.
+
+    enforceHeaderTheme();
+
+
+
+    const currentScroll =
+        Math.max(
+            0,
+            window.scrollY
+        );
+
+
+    const difference =
+        currentScroll -
+        lastHeaderScroll;
+
+
+
+    // --------------------------------------------------------
+    // ALWAYS VISIBLE AT TOP
+    // --------------------------------------------------------
+
+    if (
+        currentScroll <=
+        header.offsetHeight
+    ) {
+
+        header.classList.remove(
+            'header-hidden'
+        );
+
+
+        lastHeaderScroll =
+            currentScroll;
+
+
+        return;
+
+    }
+
+
+
+    // --------------------------------------------------------
+    // ALWAYS VISIBLE WHILE MOBILE MENU IS OPEN
+    // --------------------------------------------------------
+
+    if (
+        document.body.classList.contains(
+            'menu-open'
+        )
+    ) {
+
+        header.classList.remove(
+            'header-hidden'
+        );
+
+
+        lastHeaderScroll =
+            currentScroll;
+
+
+        return;
+
+    }
+
+
+
+    // --------------------------------------------------------
+    // IGNORE TINY MOVEMENTS
+    // --------------------------------------------------------
+
+    if (
+        Math.abs(difference) <
+        headerScrollThreshold
+    ) {
+        return;
+    }
+
+
+
+    // --------------------------------------------------------
+    // SCROLLING DOWN
+    // --------------------------------------------------------
+
+    if (
+        difference >
+        0
+    ) {
+
+        header.classList.add(
+            'header-hidden'
+        );
+
+    }
+
+
+
+    // --------------------------------------------------------
+    // SCROLLING UP
+    // --------------------------------------------------------
+
+    else {
+
+        header.classList.remove(
+            'header-hidden'
+        );
+
+    }
+
+
+
+    lastHeaderScroll =
+        currentScroll;
+
+}
+
+
+
+// ============================================================
+// HEADER FOCUS
+//
+// If somebody tabs into the header, make sure it becomes visible.
+// ============================================================
+
+if (header) {
+
+    header.addEventListener(
+        'focusin',
+        () => {
+
+            header.classList.remove(
+                'header-hidden'
+            );
+
+
+            enforceHeaderTheme();
+
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// GLOBAL SCROLL
+// ============================================================
+
+window.addEventListener(
+    'scroll',
+    headerState,
+    {
+        passive: true
+    }
+);
+
+
+
+// ============================================================
+// GLOBAL RESIZE
+// ============================================================
+
+window.addEventListener(
+    'resize',
+    () => {
+
+        enforceHeaderTheme();
+
+
+        headerState();
+
+
+
+        if (
+            window.innerWidth >
+            1100
+        ) {
+
+            closeMenu();
+
+        }
+
+    }
+);
+
+
+
+// ============================================================
+// INITIAL HEADER STATE
+// ============================================================
+
+enforceHeaderTheme();
+
+headerState();
+
+
+
+// ============================================================
+// BEFORE / AFTER SLIDER
+// ============================================================
+
+const slider =
+    document.getElementById(
+        'comparisonSlider'
+    );
+
+
+if (slider) {
+
+    const comparisonBefore =
+        document.getElementById(
+            'comparisonBefore'
+        );
+
+
+    const comparisonLine =
+        document.getElementById(
+            'comparisonLine'
+        );
+
+
+
+    function updateComparison() {
+
+        const value =
+            Number(
+                slider.value
+            );
+
+
+        if (comparisonBefore) {
+
+            comparisonBefore.style.width =
+                `${value}%`;
+
+        }
+
+
+        if (comparisonLine) {
+
+            comparisonLine.style.left =
+                `${value}%`;
+
+        }
+
+
+        slider.setAttribute(
+            'aria-valuetext',
+            `${value} percent of the before image visible`
+        );
+
+    }
+
+
+
+    slider.addEventListener(
+        'input',
+        updateComparison
+    );
+
+
+    updateComparison();
+
+}
+
+
+
+// ============================================================
+// CURRENT YEAR
+// ============================================================
+
+const currentYear =
+    document.getElementById(
+        'currentYear'
+    );
+
+
+if (currentYear) {
+
+    currentYear.textContent =
+        new Date()
+            .getFullYear();
+
+}
+
+
+
+// ============================================================
+// PRIVACY / COOKIE NOTICE
+//
+// Essential preference only.
+// No analytics or advertising trackers.
+// ============================================================
+
+const cookieKey =
+    'clutter-cookie-notice';
+
+
+const cookieVersion =
+    1;
+
+
+const cookieTTL =
+    180 *
+    86400000;
+
+
+const notice =
+    document.querySelector(
+        '.cookie-notice'
+    );
+
+
+const dialog =
+    document.getElementById(
+        'privacyDialog'
+    );
+
+
+let previousFocus =
+    null;
+
+
+
+// ============================================================
+// CHECK SAVED COOKIE NOTICE STATE
+// ============================================================
+
+function remembered() {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                cookieKey
+            );
+
+
+        if (!raw) {
+
+            return false;
+
+        }
+
+
+        const value =
+            JSON.parse(
+                raw
+            );
+
+
+        return Boolean(
+
+            value &&
+
+            value.version ===
+            cookieVersion &&
+
+            Date.now() -
+            value.time <
+            cookieTTL
+
+        );
+
+    }
+
+
+    catch {
+
+        return false;
+
+    }
+
+}
+
+
+
+// ============================================================
+// ACKNOWLEDGE NOTICE
+// ============================================================
+
+function acknowledge() {
+
+    try {
+
+        localStorage.setItem(
+            cookieKey,
+
+            JSON.stringify({
+                version:
+                    cookieVersion,
+
+                time:
+                    Date.now()
+            })
+        );
+
+    }
+
+
+    catch {
+
+        // Local storage may be disabled.
+        // Site functionality should continue.
+
+    }
+
+
+
+    if (notice) {
+
+        notice.hidden =
+            true;
+
+    }
+
+
+
+    updateBackToTop();
+
+}
+
+
+
+// ============================================================
+// INITIAL COOKIE NOTICE STATE
+// ============================================================
+
+if (notice) {
+
+    notice.hidden =
+        remembered();
+
+}
+
+
+
+// ============================================================
+// ACKNOWLEDGE BUTTON
+// ============================================================
+
+const acknowledgeButton =
+    document.querySelector(
+        '[data-ack]'
+    );
+
+
+if (acknowledgeButton) {
+
+    acknowledgeButton.addEventListener(
+        'click',
+        acknowledge
+    );
+
+}
+
+
+
+// ============================================================
+// OPEN PRIVACY DIALOG
+// ============================================================
+
+document
+    .querySelectorAll(
+        '[data-privacy]'
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                'click',
+                () => {
+
+                    if (!dialog) {
+
+                        return;
+
+                    }
+
+
+                    previousFocus =
+                        button;
+
+
+                    dialog.showModal();
+
+                }
+            );
+
+        }
+    );
+
+
+
+// ============================================================
+// CLOSE PRIVACY DIALOG
+// ============================================================
+
+const closePrivacyButton =
+    document.querySelector(
+        '[data-close]'
+    );
+
+
+if (
+    closePrivacyButton &&
+    dialog
+) {
+
+    closePrivacyButton.addEventListener(
+        'click',
+        () => {
+
+            dialog.close();
+
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// RESTORE FOCUS WHEN PRIVACY DIALOG CLOSES
+// ============================================================
+
+if (dialog) {
+
+    dialog.addEventListener(
+        'close',
+        () => {
+
+            if (
+                previousFocus &&
+                typeof previousFocus.focus ===
+                'function'
+            ) {
+
+                previousFocus.focus();
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// CLEAR SAVED PRIVACY NOTICE PREFERENCE
+// ============================================================
+
+const forgetButton =
+    document.querySelector(
+        '[data-forget]'
+    );
+
+
+if (forgetButton) {
+
+    forgetButton.addEventListener(
+        'click',
+        () => {
+
+            try {
+
+                localStorage.removeItem(
+                    cookieKey
+                );
+
+            }
+
+
+            catch {
+
+                // Local storage unavailable.
+
+            }
+
+
+
+            if (notice) {
+
+                notice.hidden =
+                    false;
+
+            }
+
+
+
+            const privacyStatus =
+                document.getElementById(
+                    'privacyStatus'
+                );
+
+
+            if (privacyStatus) {
+
+                privacyStatus.textContent =
+                    'Saved notice preference cleared. No optional trackers were active.';
+
+            }
+
+
+
+            updateBackToTop();
+
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// COOKIE STATE BETWEEN OPEN TABS
+// ============================================================
+
+window.addEventListener(
+    'storage',
+    event => {
+
+        if (
+            event.key !==
+            cookieKey
+        ) {
+
+            return;
+
+        }
+
+
+        if (notice) {
+
+            notice.hidden =
+                remembered();
+
+        }
+
+
+        updateBackToTop();
+
+    }
+);
+
+
+
+// ============================================================
+// QUESTIONNAIRE FORM
+// ============================================================
+
+const form =
+    document.getElementById(
+        'enquiryForm'
+    );
+
+
+if (form) {
+
+    const status =
+        document.getElementById(
+            'formStatus'
+        );
+
+
+    const submit =
+        form.querySelector(
+            '[type="submit"]'
+        );
+
+
+    let pending =
+        false;
+
+
+
+    form.addEventListener(
+        'submit',
+        async event => {
+
+            event.preventDefault();
+
+
+
+            if (
+                pending ||
+                !submit
+            ) {
+
+                return;
+
+            }
+
+
+
+            // =================================================
+            // REQUIRE AT LEAST ONE SPACE
+            // =================================================
+
+            const firstSpace =
+                form.querySelector(
+                    '[name="spaces[]"]'
+                );
+
+
+            const selectedSpace =
+                form.querySelector(
+                    '[name="spaces[]"]:checked'
+                );
+
+
+            if (!selectedSpace) {
+
+                if (status) {
+
+                    status.className =
+                        'error';
+
+
+                    status.textContent =
+                        'Please select at least one space.';
+
+                }
+
+
+                if (firstSpace) {
+
+                    firstSpace.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+
+            // =================================================
+            // LOCK FORM WHILE SENDING
+            // =================================================
+
+            pending =
+                true;
+
+
+            submit.disabled =
+                true;
+
+
+
+            if (status) {
+
+                status.className =
+                    '';
+
+
+                status.textContent =
+                    'Sending your questionnaire…';
+
+            }
+
+
+
+            const controller =
+                new AbortController();
+
+
+            const timer =
+                setTimeout(
+                    () => {
+
+                        controller.abort();
+
+                    },
+                    20000
+                );
+
+
+
+            try {
+
+                // =============================================
+                // GET TEMPORARY SECURITY TOKEN
+                // =============================================
+
+                const start =
+                    await fetch(
+                        'api/enquiry.php',
+                        {
+                            method:
+                                'GET',
+
+                            credentials:
+                                'same-origin',
+
+                            cache:
+                                'no-store',
+
+                            signal:
+                                controller.signal
+                        }
+                    );
+
+
+
+                if (!start.ok) {
+
+                    throw new Error(
+                        'The form is temporarily unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za, or call us. Your answers remain here.'
+                    );
+
+                }
+
+
+
+                const startResult =
+                    await start.json();
+
+
+
+                const token =
+                    startResult.token;
+
+
+
+                if (!token) {
+
+                    throw new Error(
+                        'Could not start a secure request. Please reload the page or email us directly.'
+                    );
+
+                }
+
+
+
+                // =============================================
+                // BUILD FORM DATA
+                // =============================================
+
+                const data =
+                    new FormData(
+                        form
+                    );
+
+
+                data.append(
+                    'token',
+                    token
+                );
+
+
+
+                // =============================================
+                // SUBMIT FORM
+                // =============================================
+
+                const response =
+                    await fetch(
+                        'api/enquiry.php',
+                        {
+                            method:
+                                'POST',
+
+                            body:
+                                data,
+
+                            credentials:
+                                'same-origin',
+
+                            cache:
+                                'no-store',
+
+                            signal:
+                                controller.signal
+                        }
+                    );
+
+
+
+                let result;
+
+
+
+                try {
+
+                    result =
+                        await response.json();
+
+                }
+
+
+                catch {
+
+                    throw new Error(
+                        'The form is temporarily unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za. Your answers remain here.'
+                    );
+
+                }
+
+
+
+                if (
+                    !response.ok ||
+                    !result.ok
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        'Unable to send the questionnaire. Please email us directly. Your answers remain here.'
+                    );
+
+                }
+
+
+
+                // =============================================
+                // SUCCESS
+                // =============================================
+
+                if (status) {
+
+                    status.className =
+                        'success';
+
+
+                    status.textContent =
+                        'Your questionnaire has been accepted for delivery. If you do not hear back, please contact us directly.';
+
+                }
+
+
+
+                form.reset();
+
+            }
+
+
+
+            catch (error) {
+
+                if (status) {
+
+                    status.className =
+                        'error';
+
+
+
+                    if (
+                        error.name ===
+                        'AbortError'
+                    ) {
+
+                        status.textContent =
+                            'The request timed out and delivery is unconfirmed. Please contact us before resending. Your answers remain here.';
+
+                    }
+
+
+                    else {
+
+                        status.textContent =
+                            error.message ||
+                            'Something went wrong. Please contact us directly. Your answers remain here.';
+
+                    }
+
+                }
+
+            }
+
+
+
+            finally {
+
+                clearTimeout(
+                    timer
+                );
+
+
+                pending =
+                    false;
+
+
+                submit.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// BACK TO TOP BUTTON
+// ============================================================
+
+const backToTop =
+    document.createElement(
+        'button'
+    );
+
+
+backToTop.type =
+    'button';
+
+
+backToTop.className =
+    'back-to-top';
+
+
+backToTop.setAttribute(
+    'aria-label',
+    'Back to top'
+);
+
+
+backToTop.title =
+    'Back to top';
+
+
+backToTop.textContent =
+    '↑';
+
+
+backToTop.hidden =
+    true;
+
+
+document.body.append(
+    backToTop
+);
+
+
+
+// ============================================================
+// POSITION / SHOW BACK TO TOP
+// ============================================================
+
+function updateBackToTop() {
+
+    const menuOpen =
+        document.body.classList.contains(
+            'menu-open'
+        );
+
+
+    backToTop.hidden =
+        window.scrollY <
+        400 ||
+        menuOpen;
+
+
+
+    let noticeHeight =
+        0;
+
+
+
+    if (
+        notice &&
+        !notice.hidden
+    ) {
+
+        noticeHeight =
+            notice
+                .getBoundingClientRect()
+                .height;
+
+    }
+
+
+
+    if (
+        noticeHeight >
+        0
+    ) {
+
+        backToTop.style.bottom =
+            `${noticeHeight + 36}px`;
+
+    }
+
+
+    else {
+
+        backToTop.style.bottom =
+            '24px';
+
+    }
+
+}
+
+
+
+// ============================================================
+// BACK TO TOP CLICK
+// ============================================================
+
+backToTop.addEventListener(
+    'click',
+    () => {
+
+        if (header) {
+
+            header.classList.remove(
+                'header-hidden'
+            );
+
+        }
+
+
+        enforceHeaderTheme();
+
+
+
+        const reducedMotion =
+            window.matchMedia(
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+
+
+        window.scrollTo({
+            top: 0,
+
+            behavior:
+                reducedMotion
+                    ? 'auto'
+                    : 'smooth'
+        });
+
+
+
+        const brand =
+            document.querySelector(
+                '.brand'
+            );
+
+
+        if (brand) {
+
+            brand.focus({
+                preventScroll:
+                    true
+            });
+
+        }
+
+    }
+);
+
+
+
+// ============================================================
+// BACK TO TOP EVENTS
+// ============================================================
+
+window.addEventListener(
+    'scroll',
+    updateBackToTop,
+    {
+        passive: true
+    }
+);
+
+
+window.addEventListener(
+    'resize',
+    updateBackToTop
+);
+
+
+
+// ============================================================
+// WATCH COOKIE NOTICE HEIGHT
+// ============================================================
+
+if (
+    notice &&
+    'ResizeObserver' in window
+) {
+
+    const noticeResizeObserver =
+        new ResizeObserver(
+            updateBackToTop
+        );
+
+
+    noticeResizeObserver.observe(
+        notice
+    );
+
+}
+
+
+
+// ============================================================
+// WATCH COOKIE NOTICE VISIBILITY
+// ============================================================
+
+if (
+    notice &&
+    'MutationObserver' in window
+) {
+
+    const noticeMutationObserver =
+        new MutationObserver(
+            updateBackToTop
+        );
+
+
+    noticeMutationObserver.observe(
+        notice,
+        {
+            attributes:
+                true,
+
+            attributeFilter: [
+                'hidden'
+            ]
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// WATCH MOBILE MENU BODY STATE
+// ============================================================
+
+if (
+    'MutationObserver' in window
+) {
+
+    const bodyMutationObserver =
+        new MutationObserver(
+            updateBackToTop
+        );
+
+
+    bodyMutationObserver.observe(
+        document.body,
+        {
+            attributes:
+                true,
+
+            attributeFilter: [
+                'class'
+            ]
+        }
+    );
+
+}
+
+
+
+// ============================================================
+// INITIAL BACK TO TOP STATE
+// ============================================================
+
 updateBackToTop();
