@@ -1,0 +1,31 @@
+# xneelo / Apache: upload with the site, including this hidden file.
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(?:www\.)?clutterandco\.co\.za$ [NC]
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://clutterandco.co.za%{REQUEST_URI} [R=301,L]
+</IfModule>
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+Header always unset X-Powered-By
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-pvdRlIRXI9M96JRmVz5HLOTBg3LVEk4SLQpSIeG3xx8='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+</IfModule>
+<FilesMatch "(?i)\.(?:zip|bak|log|ini|env|sql)$">
+Require all denied
+</FilesMatch>
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/webp "access plus 7 days"
+ExpiresByType image/png "access plus 7 days"
+ExpiresByType font/ttf "access plus 30 days"
+</IfModule>
