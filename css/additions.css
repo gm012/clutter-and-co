@@ -121,3 +121,28 @@ dialog [data-forget]:hover { background: #E5E9DF; }
 
 /* Approved house-and-heart replaces the decorative initial. */
 .manifesto-mark img { display: block; width: 64%; height: 64%; object-fit: contain; }
+
+/* Client feedback: approved house mark and warm, editorial mobile navigation. */
+.contact-questionnaire-mark .house-mark { display:block; width:64%; height:64%; object-fit:contain; }
+@media (max-width: 1100px) {
+ body.menu-open .site-header { backdrop-filter:none; -webkit-backdrop-filter:none; }
+ .mobile-menu { width:min(100vw,480px); height:100dvh; padding:90px 30px 28px; gap:0; background:#F2EDE3; color:#2F2F2F; box-shadow:-20px 0 70px #2f2f2f24; }
+ .menu-intro { display:flex; align-items:center; gap:15px; margin-bottom:25px; color:#56664B; font-size:9px; letter-spacing:2px; }
+ .menu-intro img { padding:9px; box-sizing:content-box; border-radius:50%; background:#7E8F72; }
+ .mobile-menu > a { display:flex; align-items:center; justify-content:space-between; min-height:54px; padding:10px 0; border-bottom:1px solid #D8C9B5; color:#2F2F2F; font-size:clamp(24px,6vw,32px); line-height:1.25; text-decoration:none; }
+ .mobile-menu > a::after { content:'↗'; font:18px var(--font-serif); color:#7E8F72; }
+ .mobile-menu > a:hover,.mobile-menu > a[aria-current="page"] { color:#56664B; }
+ .mobile-menu > a:focus-visible { outline:2px solid #56664B; outline-offset:4px; }
+ .mobile-menu > a[href="questionnaire.html"] { margin-top:24px; padding:17px 20px; background:#56664B; color:#F8F6F1; font:11px var(--font-sans); letter-spacing:1.3px; text-transform:uppercase; border:0; }
+ .mobile-menu > a[href="questionnaire.html"]::after { color:#F8F6F1; }
+ .menu-note { margin-top:auto; padding-top:28px; font:italic 18px var(--font-serif); color:#56664B; }
+ .menu-note span { display:inline-block; margin-top:10px; font:10px var(--font-sans); letter-spacing:1px; }
+ .menu-toggle.active span { background:#2F2F2F !important; }
+}
+@media (max-height:700px) and (max-width:1100px) {
+ .mobile-menu { padding-top:72px; } .menu-intro { margin-bottom:10px; }
+ .mobile-menu > a { min-height:44px; padding:7px 0; font-size:24px; }
+ .menu-note { padding-top:18px; }
+}
+
+@media (max-width:1100px) { .menu-intro img { width:48px; height:42px; flex:0 0 48px; } }

@@ -12,7 +12,7 @@ $secure=isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off';
 session_name('clutter_session');
 session_set_cookie_params(['lifetime'=>0,'path'=>'/api/','secure'=>$secure,'httponly'=>true,'samesite'=>'Strict']);
 ini_set('session.use_strict_mode','1');
-if (!session_start()) respond(503,'The secure form is unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za.');
+if (!session_start()) respond(503,'The secure form is unavailable. Please email info@clutterandco.co.za.');
 if ($_SERVER['REQUEST_METHOD']==='GET') {
     $_SESSION['token']??=bin2hex(random_bytes(32));
     respond(200,'Ready.',['token'=>$_SESSION['token']]);
@@ -44,8 +44,8 @@ foreach($spaces as $space)if(!is_string($space)||!in_array($space,$allowed,true)
 // Only a daily salted IP hash and recent timestamps are kept; no form content.
 $dir=sys_get_temp_dir().'/clutter-enquiry-'.substr(hash('sha256',__DIR__),0,16);
 $tempRoot=realpath(sys_get_temp_dir());$publicRoot=realpath(dirname(__DIR__));
-if(!$tempRoot||!$publicRoot||str_starts_with(strtolower($tempRoot.DIRECTORY_SEPARATOR),strtolower($publicRoot.DIRECTORY_SEPARATOR)))respond(503,'The form is unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za.');
-if(!is_dir($dir)&&!@mkdir($dir,0700,true)&&!is_dir($dir))respond(503,'The form is unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za.');
+if(!$tempRoot||!$publicRoot||str_starts_with(strtolower($tempRoot.DIRECTORY_SEPARATOR),strtolower($publicRoot.DIRECTORY_SEPARATOR)))respond(503,'The form is unavailable. Please email info@clutterandco.co.za.');
+if(!is_dir($dir)&&!@mkdir($dir,0700,true)&&!is_dir($dir))respond(503,'The form is unavailable. Please email info@clutterandco.co.za.');
 $secretFile=$dir.'/secret';
 if(!is_file($secretFile)){ $fh=@fopen($secretFile,'x');if($fh){fwrite($fh,bin2hex(random_bytes(32)));fclose($fh);@chmod($secretFile,0600);} }
 $secret=@file_get_contents($secretFile);if(!$secret)respond(503,'The form is unavailable. Please email us.');
@@ -56,8 +56,8 @@ if(count($times)>=5){flock($fp,LOCK_UN);fclose($fp);respond(429,'Too many reques
 $times[]=$now;rewind($fp);ftruncate($fp,0);fwrite($fp,json_encode($times));fflush($fp);flock($fp,LOCK_UN);fclose($fp);
 foreach(glob($dir.'/*.json')?:[] as $old)if(filemtime($old)<$now-86400)@unlink($old);
 $body="New Clutter & Co. space enquiry\n\nName: $name\nEmail: $email\nPhone: $phone\nSuburb: $suburb\nPreferred contact: $method\nTiming: $timing\nSpaces: ".implode(', ',$spaces)."\n\nProject details:\n$message\n\nBudget / priorities: $budget\n\nPrivacy notice acknowledged.\n";
-$headers=['From'=>'Clutter & Co. <farryn@clutterandco.co.za>','Reply-To'=>$email,'MIME-Version'=>'1.0','Content-Type'=>'text/plain; charset=UTF-8'];
+$headers=['From'=>'Clutter & Co. <info@clutterandco.co.za>','Reply-To'=>$email,'MIME-Version'=>'1.0','Content-Type'=>'text/plain; charset=UTF-8'];
 // Configure the domain mailbox / DNS on xneelo before verifying delivery.
-if(!@mail('farryn@clutterandco.co.za, eloise@clutterandco.co.za','New space questionnaire - Clutter & Co.',$body,$headers))respond(503,'We could not send the questionnaire. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za. Your answers have not been cleared.');
+if(!@mail('info@clutterandco.co.za','New space questionnaire - Clutter & Co.',$body,$headers))respond(503,'We could not send the questionnaire. Please email info@clutterandco.co.za. Your answers have not been cleared.');
 unset($_SESSION['token']);
 respond(200,'Accepted for delivery.');

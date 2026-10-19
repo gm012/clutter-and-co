@@ -1204,7 +1204,7 @@ if (form) {
                 if (!start.ok) {
 
                     throw new Error(
-                        'The form is temporarily unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za, or call us. Your answers remain here.'
+                        'The form is temporarily unavailable. Please email info@clutterandco.co.za, or call us. Your answers remain here.'
                     );
 
                 }
@@ -1290,7 +1290,7 @@ if (form) {
                 catch {
 
                     throw new Error(
-                        'The form is temporarily unavailable. Please email farryn@clutterandco.co.za or eloise@clutterandco.co.za. Your answers remain here.'
+                        'The form is temporarily unavailable. Please email info@clutterandco.co.za. Your answers remain here.'
                     );
 
                 }
