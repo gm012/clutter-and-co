@@ -1628,3 +1628,5 @@
     }
 
 }
+/* Keep the shared email list alphabetical and vertically aligned. */
+.contact-email-addresses { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }

@@ -4,6 +4,8 @@ DirectoryIndex index.html
 ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
 RewriteEngine On
+# Keep repository and hidden configuration files private.
+RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
 RewriteCond %{HTTP_HOST} ^(?:www\.)?clutterandco\.co\.za$ [NC]
 RewriteCond %{HTTPS} !=on [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]

@@ -118,3 +118,6 @@ dialog [data-forget]:hover { background: #E5E9DF; }
 .back-to-top[hidden] { display: none; }
 @media(max-width:700px) { .back-to-top { right: 18px; } }
 @media print { .back-to-top { display: none !important; } }
+
+/* Approved house-and-heart replaces the decorative initial. */
+.manifesto-mark img { display: block; width: 64%; height: 64%; object-fit: contain; }
