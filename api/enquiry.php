@@ -1,20 +1,42 @@
 <?php
 declare(strict_types=1);
-// PHP 8.1+; plain-text enquiry delivery. No submitted details are stored on disk.
+// PHP 8.2+; plain-text enquiry delivery. No submitted details are stored on disk.
+ini_set('display_errors','0');
+ini_set('display_startup_errors','0');
+ini_set('log_errors','1');
+error_reporting(E_ALL);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+header('X-Robots-Tag: noindex, nofollow');
 function respond(int $code, string $message, array $extra=[]): never {
     http_response_code($code); echo json_encode(array_merge(['ok'=>$code===200,'message'=>$message],$extra)); exit;
 }
+// Do not include submitted data, stack traces or server paths in responses/logs.
+set_exception_handler(static function(Throwable $error): never {
+    error_log('Clutter enquiry: request failed ('.get_class($error).').');
+    respond(503,'The form is temporarily unavailable. Please email info@clutterandco.co.za. Your answers have not been cleared.');
+});
+set_error_handler(static function(int $severity,string $message,string $file,int $line): bool {
+    if (!(error_reporting() & $severity)) return false;
+    throw new ErrorException('Enquiry service error',0,$severity,$file,$line);
+});
 if (!in_array($_SERVER['REQUEST_METHOD']??'', ['GET','POST'],true)) { header('Allow: GET, POST'); respond(405,'Method not allowed.'); }
+if ($_SERVER['REQUEST_METHOD']==='POST') {
+    if ((int)($_SERVER['CONTENT_LENGTH']??0)>24000) respond(413,'Please shorten your message.');
+    $contentType=strtolower(trim(explode(';',$_SERVER['CONTENT_TYPE']??'')[0]));
+    if (!in_array($contentType,['application/x-www-form-urlencoded','multipart/form-data'],true)) respond(415,'Please use the website questionnaire.');
+    if (!empty($_FILES)) respond(422,'File uploads are not accepted by this questionnaire.');
+}
 $secure=isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off';
 session_name('clutter_session');
 session_set_cookie_params(['lifetime'=>0,'path'=>'/api/','secure'=>$secure,'httponly'=>true,'samesite'=>'Strict']);
 ini_set('session.use_strict_mode','1');
 if (!session_start()) respond(503,'The secure form is unavailable. Please email info@clutterandco.co.za.');
 if ($_SERVER['REQUEST_METHOD']==='GET') {
-    $_SESSION['token']??=bin2hex(random_bytes(32));
+    if (!isset($_SESSION['token'],$_SESSION['issued']) || $_SESSION['issued']<time()-3600) {
+        $_SESSION['token']=bin2hex(random_bytes(32)); $_SESSION['issued']=time();
+    }
     respond(200,'Ready.',['token'=>$_SESSION['token']]);
 }
 if ((int)($_SERVER['CONTENT_LENGTH']??0)>24000) respond(413,'Please shorten your message.');
@@ -22,12 +44,12 @@ $origin=$_SERVER['HTTP_ORIGIN']??'';
 if ($origin!==''&&!in_array($origin,['https://clutterandco.co.za','https://www.clutterandco.co.za'],true)) respond(403,'Please submit from the Clutter & Co. website.');
 if (($_SERVER['HTTP_SEC_FETCH_SITE']??'')==='cross-site') respond(403,'Please submit from the Clutter & Co. website.');
 $token=$_POST['token']??'';
-if (!is_string($token)||!isset($_SESSION['token'])||!hash_equals($_SESSION['token'],$token)) respond(403,'Your secure session expired. Please try again.');
+if (!is_string($token)||!isset($_SESSION['token'],$_SESSION['issued'])||$_SESSION['issued']<time()-3600||!hash_equals($_SESSION['token'],$token)) respond(403,'Your secure session expired. Please try again.');
 function field(string $name,int $max,bool $required=false): string {
     $value=$_POST[$name]??'';
     if (!is_string($value)) respond(422,'Please check your form details.');
     $value=trim($value);
-    if (strlen($value)>$max||($required&&$value==='')||str_contains($value,"\0")) respond(422,'Please check the required fields and message lengths.');
+    if (strlen($value)>$max||($required&&$value==='')||!preg_match('//u',$value)||preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/',$value)) respond(422,'Please check the required fields and message lengths.');
     return $value;
 }
 if(field('company_website',200)!=='')respond(422,'Unable to process this enquiry. Please contact us directly.');
@@ -40,11 +62,16 @@ if(!in_array($method,['Phone call','Email','WhatsApp'],true)||!in_array($timing,
 $spaces=$_POST['spaces']??[];$allowed=['Kitchen / pantry','Wardrobe / cupboards','Playroom','Garage / storeroom','Office','Whole home','Moving / unpacking','Other'];
 if(!is_array($spaces)||count($spaces)<1||count($spaces)>8)respond(422,'Please choose at least one space.');
 foreach($spaces as $space)if(!is_string($space)||!in_array($space,$allowed,true))respond(422,'Please choose one of the listed spaces.');
+$spaces=array_values(array_unique($spaces));
 // Use the server temp location, never a presumed writable parent of public_html.
 // Only a daily salted IP hash and recent timestamps are kept; no form content.
-$dir=sys_get_temp_dir().'/clutter-enquiry-'.substr(hash('sha256',__DIR__),0,16);
-$tempRoot=realpath(sys_get_temp_dir());$publicRoot=realpath(dirname(__DIR__));
+// Optional server environment: CLUTTER_PRIVATE_DIR must be an existing,
+// writable directory OUTSIDE the document root. No credentials are needed.
+$storageBase=getenv('CLUTTER_PRIVATE_DIR')?:sys_get_temp_dir();
+$tempRoot=realpath($storageBase);$publicRoot=realpath(dirname(__DIR__));
 if(!$tempRoot||!$publicRoot||str_starts_with(strtolower($tempRoot.DIRECTORY_SEPARATOR),strtolower($publicRoot.DIRECTORY_SEPARATOR)))respond(503,'The form is unavailable. Please email info@clutterandco.co.za.');
+$dir=$tempRoot.'/clutter-enquiry-'.substr(hash('sha256',__DIR__),0,16);
+if(is_link($dir))respond(503,'The form is unavailable. Please email info@clutterandco.co.za.');
 if(!is_dir($dir)&&!@mkdir($dir,0700,true)&&!is_dir($dir))respond(503,'The form is unavailable. Please email info@clutterandco.co.za.');
 $secretFile=$dir.'/secret';
 if(!is_file($secretFile)){ $fh=@fopen($secretFile,'x');if($fh){fwrite($fh,bin2hex(random_bytes(32)));fclose($fh);@chmod($secretFile,0600);} }
@@ -52,12 +79,15 @@ $secret=@file_get_contents($secretFile);if(!$secret)respond(503,'The form is una
 $id=hash_hmac('sha256',($_SERVER['REMOTE_ADDR']??'unknown').gmdate('Y-m-d'),$secret);
 $fp=@fopen($dir.'/'.$id.'.json','c+');if(!$fp||!flock($fp,LOCK_EX))respond(503,'The form is busy. Please try again shortly.');
 $now=time();$times=json_decode(stream_get_contents($fp),true);$times=is_array($times)?array_values(array_filter($times,fn($v)=>is_int($v)&&$v>$now-3600)):[];
-if(count($times)>=5){flock($fp,LOCK_UN);fclose($fp);respond(429,'Too many requests. Please wait an hour or contact us directly.');}
+if(count($times)>=5){flock($fp,LOCK_UN);fclose($fp);header('Retry-After: 3600');respond(429,'Too many requests. Please wait an hour or contact us directly.');}
 $times[]=$now;rewind($fp);ftruncate($fp,0);fwrite($fp,json_encode($times));fflush($fp);flock($fp,LOCK_UN);fclose($fp);
 foreach(glob($dir.'/*.json')?:[] as $old)if(filemtime($old)<$now-86400)@unlink($old);
 $body="New Clutter & Co. space enquiry\n\nName: $name\nEmail: $email\nPhone: $phone\nSuburb: $suburb\nPreferred contact: $method\nTiming: $timing\nSpaces: ".implode(', ',$spaces)."\n\nProject details:\n$message\n\nBudget / priorities: $budget\n\nPrivacy notice acknowledged.\n";
 $headers=['From'=>'Clutter & Co. <info@clutterandco.co.za>','Reply-To'=>$email,'MIME-Version'=>'1.0','Content-Type'=>'text/plain; charset=UTF-8'];
+// Ensure UTF-8 content survives transport through the server's mail relay.
+$headers['Content-Transfer-Encoding']='quoted-printable';
+$body=quoted_printable_encode($body);
 // Configure the domain mailbox / DNS on xneelo before verifying delivery.
 if(!@mail('info@clutterandco.co.za','New space questionnaire - Clutter & Co.',$body,$headers))respond(503,'We could not send the questionnaire. Please email info@clutterandco.co.za. Your answers have not been cleared.');
-unset($_SESSION['token']);
+unset($_SESSION['token'],$_SESSION['issued']);
 respond(200,'Accepted for delivery.');

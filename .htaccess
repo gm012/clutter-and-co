@@ -1,9 +1,17 @@
 # xneelo / Apache: upload with the site, including this hidden file.
-Options -Indexes
+Options -Indexes -MultiViews
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
 RewriteEngine On
+# Keep validation files reachable without forcing a certificate first.
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+RewriteRule (^|/)(?:node_modules|vendor|tests?|work|backups?)(?:/|$) - [F,L,NC]
+RewriteRule (?:^|/)(?:package(?:-lock)?\.json|composer\.(?:json|lock)|README(?:\.[^/]*)?|AGENTS\.md)$ - [F,L,NC]
+# Normalise only an explicitly requested index.html; avoid DirectoryIndex loops.
+RewriteCond %{HTTP_HOST} ^(?:www\.)?clutterandco\.co\.za$ [NC]
+RewriteCond %{THE_REQUEST} \s/+index\.html(?:[?\s]) [NC]
+RewriteRule ^index\.html$ https://clutterandco.co.za/ [R=301,L]
 # Keep repository and hidden configuration files private.
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
 RewriteCond %{HTTP_HOST} ^(?:www\.)?clutterandco\.co\.za$ [NC]
@@ -17,9 +25,9 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set X-Frame-Options "SAMEORIGIN"
 Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 Header always unset X-Powered-By
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-pvdRlIRXI9M96JRmVz5HLOTBg3LVEk4SLQpSIeG3xx8='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-bFXrJ1oj96OiXhwAOW4vVWEJulA5JJjJvPQLp/PE+6E=' 'sha256-zBcq6dNT9H1FCUv5iSJgA32asHY/dJKbz+vSSZOWW3w='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 </IfModule>
-<FilesMatch "(?i)\.(?:zip|bak|log|ini|env|sql)$">
+<FilesMatch "(?i)(?:^\.|~$|\.(?:zip|bak|old|orig|log|ini|env|sql|map|swp|sqlite|sqlite3|dist|example)$)">
 Require all denied
 </FilesMatch>
 <IfModule mod_deflate.c>
@@ -29,5 +37,9 @@ AddOutputFilterByType DEFLATE text/html text/css application/javascript applicat
 ExpiresActive On
 ExpiresByType image/webp "access plus 7 days"
 ExpiresByType image/png "access plus 7 days"
+ExpiresByType image/jpeg "access plus 7 days"
+ExpiresByType image/svg+xml "access plus 7 days"
+ExpiresByType text/css "access plus 1 day"
+ExpiresByType application/javascript "access plus 1 day"
 ExpiresByType font/ttf "access plus 30 days"
 </IfModule>

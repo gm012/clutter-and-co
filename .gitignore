@@ -1,0 +1,11 @@
+# Private/development files must never be committed or uploaded.
+.env
+.env.*
+!.env.example
+*.log
+*.bak
+*.zip
+*.sql
+node_modules/
+.DS_Store
+Thumbs.db

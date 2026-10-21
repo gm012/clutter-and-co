@@ -1,0 +1,9 @@
+# Request cap is applied before PHP parses the form.
+Options -Indexes
+<Files "enquiry.php">
+LimitRequestBody 24000
+</Files>
+<IfModule mod_headers.c>
+Header always set Cache-Control "no-store"
+Header always set X-Robots-Tag "noindex, nofollow"
+</IfModule>
